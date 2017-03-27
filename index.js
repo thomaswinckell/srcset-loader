@@ -102,7 +102,7 @@ module.exports.pitch = function srcSetLoaderPitch(remainingRequest) {
 
   const sources = buildSources(sizes, loaders, resource);
   const exportSources = stringifySources(sources);
-  const exportSrcSet = stringifySrcSet(sources);
+  const exportSrcSet = stringifySrcSet(sources);// TODO pass and parse placeholder query
   const placeholderScript = placeholder ? `placeholder: require('!!${path.join(__dirname, './placeholder')}!${resource}'),` : '';
   return `
 module.exports = {

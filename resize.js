@@ -1,9 +1,10 @@
-const sharp = require('sharp');
 const sizeOf = require('image-size');
 const loaderUtils = require('loader-utils');
+const path = require('path');
+const gm = require('gm').subClass({ imageMagick: true });
 
 
-function resizeImage(content, width) {
+function resizeImage(content, width, ext) {
   const source = sizeOf(content);
 
   // dont scale up images, let the browser do that
@@ -12,7 +13,9 @@ function resizeImage(content, width) {
     return Promise.resolve(content);
   }
 
-  return sharp(content).resize(width).toBuffer();
+  return new Promise(resolve => {
+      gm(content).resize(width).toBuffer(ext, (err, buf) => resolve(buf));
+  });
 }
 
 module.exports = function resizeLoader(content) {
@@ -23,8 +26,9 @@ module.exports = function resizeLoader(content) {
 
   const query = loaderUtils.parseQuery(this.query);
   const size = parseInt(query.size, 10);
+  const ext = path.parse(this.resourcePath).ext.slice(1);
 
-  resizeImage(content, size).then((buffer) => {
+  resizeImage(content, size, ext).then((buffer) => {
     callback(null, buffer);
   }, (err) => {
     callback(err);
